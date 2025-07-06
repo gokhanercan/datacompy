@@ -23,7 +23,7 @@ two dataframes.
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import Any, Optional
 
 from ordered_set import OrderedSet
 
@@ -153,7 +153,7 @@ class BaseCompare(ABC):
         self,
         sample_count: int = 10,
         column_count: int = 10,
-        html_file: str | None = None,
+        html_file: Optional[str] = None,
     ) -> str:
         """Return a string representation of a report."""
         pass

@@ -23,7 +23,7 @@ two dataframes.
 
 import logging
 import os
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List, cast, Union, Optional
 
 import numpy as np
 import pandas as pd
@@ -84,7 +84,7 @@ class Compare(BaseCompare):
         self,
         df1: pd.DataFrame,
         df2: pd.DataFrame,
-        join_columns: List[str] | str | None = None,
+        join_columns: Union[List[str], str, None] = None,
         on_index: bool = False,
         abs_tol: float = 0,
         rel_tol: float = 0,
@@ -100,7 +100,7 @@ class Compare(BaseCompare):
         elif on_index:
             self.on_index = True
             self.join_columns = []
-        elif isinstance(join_columns, str | int | float):
+        elif isinstance(join_columns,  (str, int, float)):
             self.join_columns = [
                 str(join_columns).lower()
                 if self.cast_column_names_lower
@@ -487,7 +487,7 @@ class Compare(BaseCompare):
 
     def sample_mismatch(
         self, column: str, sample_count: int = 10, for_display: bool = False
-    ) -> pd.DataFrame | None:
+    ) -> Optional[pd.DataFrame]:
         """Return sample mismatches.
 
         Gets a sub-dataframe which contains the identifying
@@ -623,7 +623,7 @@ class Compare(BaseCompare):
         self,
         sample_count: int = 10,
         column_count: int = 10,
-        html_file: str | None = None,
+        html_file: Optional[str] = None,
     ) -> str:
         """Return a string representation of a report.
 
@@ -787,7 +787,7 @@ class Compare(BaseCompare):
         return report
 
 
-def render(filename: str, *fields: int | float | str) -> str:
+def render(filename: str, *fields: (int, float,str)) -> str:
     """Render out an individual template.
 
     This basically just reads in a

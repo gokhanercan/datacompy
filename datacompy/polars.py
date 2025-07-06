@@ -24,7 +24,7 @@ two dataframes.
 import logging
 import os
 from copy import deepcopy
-from typing import Any, Dict, List, cast
+from typing import Any, Dict, List, cast, Union, Optional
 
 import numpy as np
 import polars as pl
@@ -84,7 +84,7 @@ class PolarsCompare(BaseCompare):
         self,
         df1: pl.DataFrame,
         df2: pl.DataFrame,
-        join_columns: List[str] | str,
+        join_columns: Union[List[str], str],
         abs_tol: float = 0,
         rel_tol: float = 0,
         df1_name: str = "df1",
@@ -495,7 +495,7 @@ class PolarsCompare(BaseCompare):
 
     def sample_mismatch(
         self, column: str, sample_count: int = 10, for_display: bool = False
-    ) -> pl.DataFrame | None:
+    ) -> Optional[pl.DataFrame]:
         """Return sample mismatches.
 
         Get a sub-dataframe which contains the identifying
@@ -625,7 +625,7 @@ class PolarsCompare(BaseCompare):
         self,
         sample_count: int = 10,
         column_count: int = 10,
-        html_file: str | None = None,
+        html_file: Optional[str] = None,
     ) -> str:
         """Return a string representation of a report.
 
@@ -788,7 +788,7 @@ class PolarsCompare(BaseCompare):
         return report
 
 
-def render(filename: str, *fields: int | float | str) -> str:
+def render(filename: str, *fields: Union[int, float, str]) -> str:
     """Render out an individual template.
 
     This basically just reads in a
