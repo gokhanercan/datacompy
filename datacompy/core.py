@@ -30,7 +30,8 @@ import pandas as pd
 from ordered_set import OrderedSet
 
 from datacompy.base import BaseCompare, temp_column_name
-from datacompy.scores import Scores
+
+from datacompy.metrics import Metrics
 
 LOG = logging.getLogger(__name__)
 
@@ -625,7 +626,7 @@ class Compare(BaseCompare):
         sample_count: int = 10,
         column_count: int = 10,
         html_file: Optional[str] = None,
-    ) -> (str,Optional[Scores]):
+    ) -> (str,Optional[Metrics]):
         """Return a string representation of a report.
 
         The representation can
@@ -792,13 +793,15 @@ class Compare(BaseCompare):
             with open(html_file, "w") as f:
                 f.write(html_report)
 
-        scores = Scores(
+        scores = Metrics(
             target_cells=self.df2.shape[0] * self.df2.shape[1],
             source_cells=self.df1.shape[0] * self.df1.shape[1],
             cols_in_common=_cols_in_common,
             cols_in_target=len(self.df2.columns),
+            cols_in_source=len(self.df1.columns),
             matching_rows = _matching_rows,     # This is good only when the schema is the same
             rows_in_target=self.df2.shape[0],
+            rows_in_source=self.df1.shape[0],
             matching_cols = _matching_cols,
             matching_cells = _matching_cells
         )
