@@ -1,0 +1,4 @@
+- Handle data similarity when the schema is different
+- Column data type similarity
+- Report cell difference matrix
+- Report better looking html report
