@@ -33,6 +33,33 @@ from datacompy.base import BaseCompare, temp_column_name
 
 LOG = logging.getLogger(__name__)
 
+class Scores(object):
+
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.target_cells = None
+        self.source_cells = None
+        self.cols_in_common = None
+        self.cols_in_target = None
+        for k, v in kwargs.items():
+            setattr(self, k, v)
+
+    @property
+    def overall_schema_similarity(self) -> float:       #todo: take into account data types too.
+        return self.cols_in_common / max(self.cols_in_target, self.cols_in_common) if self.cols_in_target else 0
+
+    @property
+    def overall_data_similarity(self) -> float:
+        return 0    #todo
+
+    def __str__(self):
+        base_attrs = self.__dict__
+        prop_attrs = {
+            'overall_schema_similarity': self.overall_schema_similarity,
+            'overall_data_similarity': self.overall_data_similarity
+        }
+        all_attrs = {**base_attrs, **prop_attrs}
+        return '\n'.join(f"{k}: {v}" for k, v in all_attrs.items())
 
 class Compare(BaseCompare):
     """Comparison class to be used to compare whether two dataframes as equal.
@@ -624,7 +651,7 @@ class Compare(BaseCompare):
         sample_count: int = 10,
         column_count: int = 10,
         html_file: Optional[str] = None,
-    ) -> str:
+    ) -> (str,Optional[Scores]):
         """Return a string representation of a report.
 
         The representation can
@@ -665,9 +692,10 @@ class Compare(BaseCompare):
         report += "\n\n"
 
         # Column Summary
+        _cols_in_common =len(self.intersect_columns())
         report += render(
             "column_summary.txt",
-            len(self.intersect_columns()),
+            _cols_in_common,
             f"{len(self.df1_unq_columns())} {self.df1_unq_columns().items}",
             f"{len(self.df2_unq_columns())} {self.df2_unq_columns().items}",
             self.df1_name,
@@ -784,13 +812,19 @@ class Compare(BaseCompare):
             with open(html_file, "w") as f:
                 f.write(html_report)
 
-        return report
+        scores = Scores(
+            target_cells=self.df2.shape[0] * self.df2.shape[1],
+            source_cells=self.df1.shape[0] * self.df1.shape[1],
+            cols_in_common=_cols_in_common,
+            cols_in_target=len(self.df2.columns),
+        )
+        return report, scores
 
 
 def render(filename: str, *fields: Union[int, float, str]) -> str:
     if filename == "column_comparison.txt":
         template = (
-            "Column Comparison\n"
+            "ColumnComparison (Schema)\n"
             "-----------------\n\n"
             "Number of columns compared with some values unequal: {0:,}\n"
             "Number of columns compared with all values equal: {1:,}\n"
@@ -835,6 +869,9 @@ def render(filename: str, *fields: Union[int, float, str]) -> str:
         )
     else:
         return "n/a"
+    print("n/a")
+    print(fields)
+    print("n/a")
     return template.format(*fields)
 
 
