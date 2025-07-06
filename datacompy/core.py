@@ -787,28 +787,55 @@ class Compare(BaseCompare):
         return report
 
 
-def render(filename: str, *fields: (int, float,str)) -> str:
-    """Render out an individual template.
-
-    This basically just reads in a
-    template file, and applies ``.format()`` on the fields.
-
-    Parameters
-    ----------
-    filename : str
-        The file that contains the template.  Will automagically prepend the
-        templates directory before opening
-    fields : list
-        Fields to be rendered out in the template
-
-    Returns
-    -------
-    str
-        The fully rendered out file.
-    """
-    this_dir = os.path.dirname(os.path.realpath(__file__))
-    with open(os.path.join(this_dir, "templates", filename)) as file_open:
-        return file_open.read().format(*fields)
+def render(filename: str, *fields: Union[int, float, str]) -> str:
+    if filename == "column_comparison.txt":
+        template = (
+            "Column Comparison\n"
+            "-----------------\n\n"
+            "Number of columns compared with some values unequal: {0:,}\n"
+            "Number of columns compared with all values equal: {1:,}\n"
+            "Total number of values which compare unequal: {2:,}\n"
+        )
+    elif filename == "column_summary.txt":
+        template = (
+            "Column Summary\n"
+            "--------------\n\n"
+            "Number of columns in common: {0}\n"
+            "Number of columns in {3} but not in {4}: {1}\n"
+            "Number of columns in {4} but not in {3}: {2}\n"
+        )
+    elif filename == "fav_column_summary.txt":
+        template = (
+            "****** Column Summary ******\n\n"
+            "Number of columns in common with matching schemas: {0}\n"
+            "Number of columns in common with schema differences: {1}\n"
+            "Number of columns in base but not compare: {2}\n"
+            "Number of columns in compare but not base: {3}\n"
+        )
+    elif filename == "header.txt":
+        template = (
+            "DataComPy Comparison\n"
+            "--------------------\n\n"
+            "DataFrame Summary\n"
+            "-----------------\n"
+        )
+    elif filename == "row_summary.txt":
+        template = (
+            "Row Summary\n"
+            "-----------\n\n"
+            "Matched on: {0}\n"
+            "Any duplicates on match values: {10}\n"
+            "Absolute Tolerance: {1}\n"
+            "Relative Tolerance: {2}\n"
+            "Number of rows in common: {3:,}\n"
+            "Number of rows in {8} but not in {9}: {4:,}\n"
+            "Number of rows in {9} but not in {8}: {5:,}\n\n"
+            "Number of rows with some compared columns unequal: {6:,}\n"
+            "Number of rows with all compared columns equal: {7:,}\n"
+        )
+    else:
+        return "n/a"
+    return template.format(*fields)
 
 
 def columns_equal(
