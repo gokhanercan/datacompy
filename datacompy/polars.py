@@ -341,8 +341,8 @@ class PolarsCompare(BaseCompare):
         creates a column column_match which is True for matches, False
         otherwise.
         """
-        match_cnt: int | float
-        null_diff: int | float
+        match_cnt: Union[int, float]
+        null_diff: Union[int, float]
 
         LOG.debug("Comparing intersection")
         for column in self.intersect_columns():
