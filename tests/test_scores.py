@@ -41,6 +41,7 @@ class TestScores(unittest.TestCase):
         self.assertEqual(scores.row_similarity, 1.0)
         self.assertEqual(scores.column_similarity, 1.0)
         self.assertEqual(scores.cell_similarity, 1.0)
+        self.assertEqual(scores.overall_similarity, 1.0)
 
     def test__schema_similarity__same_schema_1cell_diff_in_4x5_matrix__return_different_similarities(self):
         target = self.df.copy()
@@ -51,6 +52,7 @@ class TestScores(unittest.TestCase):
         self.assertEqual(scores.row_similarity, 0.75)
         self.assertEqual(scores.column_similarity, 0.8)
         self.assertEqual(scores.cell_similarity, 0.95)
+        self.assertEqual(scores.overall_similarity, 0.975)
 
 
 if __name__ == '__main__':

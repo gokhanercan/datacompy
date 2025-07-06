@@ -42,14 +42,21 @@ class Scores(object):
     def cell_similarity(self) -> float:
         return self.matching_cells / max(self.target_cells, self.matching_cells) if self.target_cells else 0
 
+    @property
+    def overall_similarity(self) -> float:
+        """Calculate the overall similarity score based on column schema, row, and cell similarities."""
+        scores = [self.column_schema_similarity, self.cell_similarity]
+        return  sum(scores) / len(scores) if scores else None
+
     def __str__(self):
         base_attrs = self.__dict__
         prop_attrs = {
             'column_schema_similarity': self.column_schema_similarity,
-            'overall_schema_similarity': self.overall_schema_similarity,
+            # 'overall_schema_similarity': self.overall_schema_similarity,
             'row_similarity': self.row_similarity,
             'column_similarity': self.column_similarity,
-            'cell_similarity': self.cell_similarity
+            'cell_similarity': self.cell_similarity,
+            'overall_similarity': self.overall_similarity,
         }
         all_attrs = {**base_attrs, **prop_attrs}
         return '\n'.join(f"{k}: {v}" for k, v in all_attrs.items())
