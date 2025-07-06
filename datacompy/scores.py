@@ -11,6 +11,7 @@ class Scores(object):
         self.cols_in_target = None
         self.matching_rows = None
         self.rows_in_target = None
+        self.matching_cols = None
         for k, v in kwargs.items():
             setattr(self, k, v)
 
@@ -32,12 +33,20 @@ class Scores(object):
         else:
             return None # todo:
 
+    @property
+    def column_similarity(self) -> float:
+        if (self.overall_schema_similarity == 1):
+            return self.matching_cols / max(self.cols_in_target, self.matching_cols) if self.cols_in_target else 0
+        else:
+            return None  # todo:
+
     def __str__(self):
         base_attrs = self.__dict__
         prop_attrs = {
             'column_schema_similarity': self.column_schema_similarity,
             'overall_schema_similarity': self.overall_schema_similarity,
-            'row_similarity': self.row_similarity
+            'row_similarity': self.row_similarity,
+            'column_similarity': self.column_similarity
         }
         all_attrs = {**base_attrs, **prop_attrs}
         return '\n'.join(f"{k}: {v}" for k, v in all_attrs.items())

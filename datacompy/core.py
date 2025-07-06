@@ -698,6 +698,7 @@ class Compare(BaseCompare):
         )
 
         # Column Matching
+        _matching_cols = len([col for col in self.column_stats if col["unequal_cnt"] == 0])
         report += render(
             "column_comparison.txt",
             len([col for col in self.column_stats if col["unequal_cnt"] > 0]),
@@ -794,6 +795,7 @@ class Compare(BaseCompare):
             cols_in_target=len(self.df2.columns),
             matching_rows = _matching_rows,     # This is good only when the schema is the same
             rows_in_target=self.df2.shape[0],
+            matching_cols = _matching_cols
         )
         return report, scores
 
@@ -801,7 +803,7 @@ class Compare(BaseCompare):
 def render(filename: str, *fields: Union[int, float, str]) -> str:
     if filename == "column_comparison.txt":
         template = (
-            "ColumnComparison (Schema)\n"
+            "ColumnComparison\n"
             "-----------------\n\n"
             "Number of columns compared with some values unequal: {0:,}\n"
             "Number of columns compared with all values equal: {1:,}\n"
@@ -846,9 +848,6 @@ def render(filename: str, *fields: Union[int, float, str]) -> str:
         )
     else:
         return "n/a"
-    print("n/a")
-    print(fields)
-    print("n/a")
     return template.format(*fields)
 
 

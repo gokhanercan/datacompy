@@ -39,6 +39,7 @@ class TestScores(unittest.TestCase):
         scores:Scores = self._calculate_scores(source, target)
         self.assertEqual(scores.overall_schema_similarity, 1.0)
         self.assertEqual(scores.row_similarity, 1.0)
+        self.assertEqual(scores.column_similarity, 1.0)
 
 
 if __name__ == '__main__':
