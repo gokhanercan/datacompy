@@ -24,9 +24,6 @@ class Scores(object):
     def overall_schema_similarity(self) -> float:
         return self.column_schema_similarity
 
-    def overall_data_similarity(self) -> float:
-        return self.row_similarity #TODO: Not working cell by cell comparison yet, so using row similarity for now.
-
     @property
     def row_similarity(self) -> float:
         if(self.overall_schema_similarity == 1):
