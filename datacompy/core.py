@@ -706,6 +706,10 @@ class Compare(BaseCompare):
             sum(col["unequal_cnt"] for col in self.column_stats),
         )
 
+        _matching_cells = 0
+        for col in self.column_stats:   # column_stats reports based on the intersected columns!
+            _matching_cells += col["match_cnt"]
+
         match_stats = []
         match_sample = []
         any_mismatch = False
@@ -795,7 +799,8 @@ class Compare(BaseCompare):
             cols_in_target=len(self.df2.columns),
             matching_rows = _matching_rows,     # This is good only when the schema is the same
             rows_in_target=self.df2.shape[0],
-            matching_cols = _matching_cols
+            matching_cols = _matching_cols,
+            matching_cells = _matching_cells
         )
         return report, scores
 
