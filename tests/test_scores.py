@@ -4,7 +4,7 @@ from io import StringIO
 import pandas as pd
 
 import datacompy
-from datacompy.core import Scores
+from datacompy.scores import Scores
 
 
 class TestScores(unittest.TestCase):
@@ -18,7 +18,8 @@ class TestScores(unittest.TestCase):
         """
         self.df = pd.read_csv(StringIO(data1.strip()))
 
-    def _calculate_scores(self, df_source, df_target):
+    @staticmethod
+    def _calculate_scores(df_source, df_target):
         compare = datacompy.Compare(
             df_source,
             df_target,
@@ -37,6 +38,7 @@ class TestScores(unittest.TestCase):
         source = self.df.copy()
         scores:Scores = self._calculate_scores(source, target)
         self.assertEqual(scores.overall_schema_similarity, 1.0)
+        self.assertEqual(scores.row_similarity, 1.0)
 
 
 if __name__ == '__main__':

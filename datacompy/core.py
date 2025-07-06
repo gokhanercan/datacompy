@@ -30,36 +30,10 @@ import pandas as pd
 from ordered_set import OrderedSet
 
 from datacompy.base import BaseCompare, temp_column_name
+from datacompy.scores import Scores
 
 LOG = logging.getLogger(__name__)
 
-class Scores(object):
-
-    def __init__(self, **kwargs):
-        super().__init__()
-        self.target_cells = None
-        self.source_cells = None
-        self.cols_in_common = None
-        self.cols_in_target = None
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-
-    @property
-    def overall_schema_similarity(self) -> float:       #todo: take into account data types too.
-        return self.cols_in_common / max(self.cols_in_target, self.cols_in_common) if self.cols_in_target else 0
-
-    @property
-    def overall_data_similarity(self) -> float:
-        return 0    #todo
-
-    def __str__(self):
-        base_attrs = self.__dict__
-        prop_attrs = {
-            'overall_schema_similarity': self.overall_schema_similarity,
-            'overall_data_similarity': self.overall_data_similarity
-        }
-        all_attrs = {**base_attrs, **prop_attrs}
-        return '\n'.join(f"{k}: {v}" for k, v in all_attrs.items())
 
 class Compare(BaseCompare):
     """Comparison class to be used to compare whether two dataframes as equal.
@@ -703,6 +677,7 @@ class Compare(BaseCompare):
         )
 
         # Row Summary
+        _matching_rows = self.count_matching_rows()
         if self.on_index:
             match_on = "index"
         else:
@@ -817,6 +792,8 @@ class Compare(BaseCompare):
             source_cells=self.df1.shape[0] * self.df1.shape[1],
             cols_in_common=_cols_in_common,
             cols_in_target=len(self.df2.columns),
+            matching_rows = _matching_rows,     # This is good only when the schema is the same
+            rows_in_target=self.df2.shape[0],
         )
         return report, scores
 
