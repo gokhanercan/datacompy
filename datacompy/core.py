@@ -183,11 +183,11 @@ class Compare(BaseCompare):
         if not set(self.join_columns).issubset(set(dataframe.columns)):
             missing_cols = set(self.join_columns) - set(dataframe.columns)
             raise ValueError(
-                f"{index} must have all columns from join_columns: {missing_cols}"
+                f"KEY ERROR:{index} must have all columns from join_columns: {missing_cols}"
             )
 
         if len(set(dataframe.columns)) < len(dataframe.columns):
-            raise ValueError(f"{index} must have unique column names")
+            raise ValueError(f"KEY ERROR: {index} must have unique column names")
 
         if self.on_index:
             if dataframe.index.duplicated().sum() > 0:
@@ -225,7 +225,10 @@ class Compare(BaseCompare):
             f"Number of columns in df2 and not in df1: {len(self.df2_unq_columns())}"
         )
         LOG.debug("Merging dataframes")
-        self._dataframe_merge(ignore_spaces)
+        try:
+            self._dataframe_merge(ignore_spaces)
+        except Exception as ex:
+            raise ValueError(f"KEY ERROR: {str(ex)}")
         self._intersect_compare(ignore_spaces, ignore_case)
         if self.matches():
             LOG.info("df1 matches df2")
@@ -805,6 +808,8 @@ class Compare(BaseCompare):
             matching_cols = _matching_cols,
             matching_cells = _matching_cells
         )
+        print("\nMetrics\n")
+        print(scores)
         return report, scores
 
 

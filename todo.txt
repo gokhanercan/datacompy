@@ -1,3 +1,4 @@
+- When errors in KEYS, do not run
 - Handle data similarity when the schema is different
 - Column data type similarity
 - Report cell difference matrix
