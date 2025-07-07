@@ -28,6 +28,7 @@ from typing import Any, Dict, List, cast, Union, Optional
 import numpy as np
 import pandas as pd
 from ordered_set import OrderedSet
+from tabulate import tabulate
 
 from datacompy.base import BaseCompare, temp_column_name
 
@@ -655,7 +656,7 @@ class Compare(BaseCompare):
         def df_to_str(pdf: pd.DataFrame) -> str:
             if not self.on_index:
                 pdf = pdf.reset_index(drop=True)
-            return pdf.to_string()
+            return tabulate(pdf, headers='keys', tablefmt='psql')
 
         # Header
         report = render("header.txt")
@@ -738,7 +739,7 @@ class Compare(BaseCompare):
                     )
 
         if any_mismatch:
-            report += "Columns with Unequal Values or Types\n"
+            report += "\n\nColumns with Unequal Values or Types\n"
             report += "------------------------------------\n"
             report += "\n"
             df_match_stats = pd.DataFrame(match_stats)
@@ -757,7 +758,7 @@ class Compare(BaseCompare):
             report += "\n\n"
 
             if sample_count > 0:
-                report += "Sample Rows with Unequal Values\n"
+                report += "\nSample Rows with Unequal Values\n"
                 report += "-------------------------------\n"
                 report += "\n"
                 for sample in match_sample:
@@ -808,31 +809,31 @@ class Compare(BaseCompare):
             matching_cols = _matching_cols,
             matching_cells = _matching_cells
         )
-        print("\nMetrics\n")
-        print(scores)
+        metrics_report:str = f"\n\nMetrics\n---------------\n{str(scores)}"
+        report = report + metrics_report
         return report, scores
 
 
 def render(filename: str, *fields: Union[int, float, str]) -> str:
     if filename == "column_comparison.txt":
         template = (
-            "ColumnComparison\n"
-            "-----------------\n\n"
+            "\n\nColumnComparison\n"
+            "-----------------\n"
             "Number of columns compared with some values unequal: {0:,}\n"
             "Number of columns compared with all values equal: {1:,}\n"
             "Total number of values which compare unequal: {2:,}\n"
         )
     elif filename == "column_summary.txt":
         template = (
-            "Column Summary\n"
-            "--------------\n\n"
+            "\nColumn Summary\n"
+            "--------------\n"
             "Number of columns in common: {0}\n"
             "Number of columns in {3} but not in {4}: {1}\n"
             "Number of columns in {4} but not in {3}: {2}\n"
         )
     elif filename == "fav_column_summary.txt":
         template = (
-            "****** Column Summary ******\n\n"
+            "****** Column Summary ******\n"
             "Number of columns in common with matching schemas: {0}\n"
             "Number of columns in common with schema differences: {1}\n"
             "Number of columns in base but not compare: {2}\n"
@@ -840,15 +841,15 @@ def render(filename: str, *fields: Union[int, float, str]) -> str:
         )
     elif filename == "header.txt":
         template = (
-            "DataComPy Comparison\n"
-            "--------------------\n\n"
+            "DATACOMPY COMPARISON\n"
+            "----------------------------------------------------------\n\n"
             "DataFrame Summary\n"
             "-----------------\n"
         )
     elif filename == "row_summary.txt":
         template = (
-            "Row Summary\n"
-            "-----------\n\n"
+            "\n\nRow Summary\n"
+            "-----------\n"
             "Matched on: {0}\n"
             "Any duplicates on match values: {10}\n"
             "Absolute Tolerance: {1}\n"

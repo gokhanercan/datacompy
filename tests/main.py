@@ -14,10 +14,10 @@ data1 = """acct_id,dollar_amt,name             ,float_fld ,date_fld, extra_col1
 """
 
 data2 = """acct_id,dollar_amt,name             ,float_fld ,date_fld
-    ,George Maharis123     ,14530.1555,2017-01-01
-    ,Michael Bluth      ,1         ,2017-01-01
-    ,George Bluth       ,          ,2017-01-01
-    ,Bob Loblaw         ,345.12    ,2017-01-01
+10000001234    ,George Maharis123     ,14530.1555,2017-01-01
+10000001235,Michael Bluth      ,1         ,2017-01-01
+0000001236,George Bluth       ,          ,2017-01-01
+10000001237,Bob Loblaw         ,345.12    ,2017-01-01
 """
 
 df1 = pd.read_csv(StringIO(data1))

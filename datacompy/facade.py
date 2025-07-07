@@ -20,5 +20,5 @@ def try_compare(df1, df2, key):
         if str(e).startswith("KEY ERROR:"):
             return None, None, ComparisonStatus(success=False, error=str(e).replace("KEY ERROR:",""), error_type="KEY")
         else:
-            # raise e
-            return None,None, ComparisonStatus(success=False, error=str(e))
+            raise e
+            # return None,None, ComparisonStatus(success=False, error=str(e))
