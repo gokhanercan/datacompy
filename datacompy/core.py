@@ -809,7 +809,7 @@ class Compare(BaseCompare):
             matching_cols = _matching_cols,
             matching_cells = _matching_cells
         )
-        metrics_report:str = f"\n\nMetrics\n---------------\n{str(scores)}"
+        metrics_report:str = f"\nMetrics\n---------------\n{str(scores)}"
         report = report + metrics_report
         return report, scores
 
