@@ -28,6 +28,7 @@ class TestScores(unittest.TestCase):
             rel_tol=0,
             df1_name='Source',
             df2_name='Target',
+            ignore_spaces = True
         )
         compare.matches(ignore_extra_columns=False)
         reports, scores = compare.report()
@@ -47,6 +48,17 @@ class TestScores(unittest.TestCase):
         self.assertEqual(m.overall_score, 1.0)
         self.assertEqual(m.redundant_data_score, 1.0)
         self.assertEqual(m.redundant_schema_score, 1.0)
+
+    def test__schema_similarity__exactclones__nullstylediffs__return100(self):
+        target = self.df.copy()
+        source = self.df.copy()
+        source.at[0, 'name'] = ''
+        target.at[0, 'name'] = ' '
+
+        m:Metrics = self._calculate_scores(source, target)
+
+        self.assertEqual(m.cell_similarity, 1.0)
+        self.assertEqual(m.overall_similarity, 1.0)
 
     def test__schema_similarity__same_schema_1cell_diff_in_4x5_matrix__return_different_similarities(self):
         target = self.df.copy()
