@@ -9,9 +9,9 @@ class ComparisonStatus:
     def __repr__(self):
         return f"ComparisonStatus(success={self.Success}, error='{self.Error}', error_type={self.ErrorType})"
 
-def try_compare(df1, df2, key):
+def try_compare(df1, df2, key, ignore_spaces:bool=True, nulls_are_empty:bool=True):
     try:
-        compare = datacompy.Compare(df1,df2, join_columns=key, abs_tol=0, rel_tol=0, df1_name='Source', df2_name='Target', ignore_spaces=True, nulls_are_empty=True)
+        compare = datacompy.Compare(df1,df2, join_columns=key, abs_tol=0, rel_tol=0, df1_name='Source', df2_name='Target', ignore_spaces=ignore_spaces, nulls_are_empty=nulls_are_empty)
         compare.matches(ignore_extra_columns=False)
         reports, metrics = compare.report()
         status = ComparisonStatus(success=True, error=None)
