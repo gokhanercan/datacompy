@@ -96,6 +96,7 @@ class Compare(BaseCompare):
         ignore_spaces: bool = False,
         ignore_case: bool = False,
         cast_column_names_lower: bool = True,
+        nulls_are_empty:bool = False
     ) -> None:
         self.cast_column_names_lower = cast_column_names_lower
         if on_index and join_columns is not None:
@@ -126,11 +127,12 @@ class Compare(BaseCompare):
         self.rel_tol = rel_tol
         self.ignore_spaces = ignore_spaces
         self.ignore_case = ignore_case
+        self.nulls_are_empty = nulls_are_empty
         self.df1_unq_rows: pd.DataFrame
         self.df2_unq_rows: pd.DataFrame
         self.intersect_rows: pd.DataFrame
         self.column_stats: List[Dict[str, Any]] = []
-        self._compare(ignore_spaces=ignore_spaces, ignore_case=ignore_case)
+        self._compare(ignore_spaces=ignore_spaces, ignore_case=ignore_case, nulls_are_empty=nulls_are_empty)
 
     @property
     def df1(self) -> pd.DataFrame:
@@ -199,7 +201,7 @@ class Compare(BaseCompare):
             ):
                 self._any_dupes = True
 
-    def _compare(self, ignore_spaces: bool, ignore_case: bool) -> None:
+    def _compare(self, ignore_spaces: bool, ignore_case: bool, nulls_are_empty:bool = False) -> None:
         """Run the comparison.
 
         This tries to run df1.equals(df2)
@@ -230,7 +232,7 @@ class Compare(BaseCompare):
             self._dataframe_merge(ignore_spaces)
         except Exception as ex:
             raise ValueError(f"KEY ERROR: {str(ex)}")
-        self._intersect_compare(ignore_spaces, ignore_case)
+        self._intersect_compare(ignore_spaces, ignore_case, nulls_are_empty)
         if self.matches():
             LOG.info("df1 matches df2")
         else:
@@ -252,7 +254,7 @@ class Compare(BaseCompare):
         """Get columns that are shared between the two dataframes."""
         return OrderedSet(self.df1.columns) & OrderedSet(self.df2.columns)
 
-    def _dataframe_merge(self, ignore_spaces: bool) -> None:
+    def _dataframe_merge(self, ignore_spaces: bool, nulls_are_empty:bool = False) -> None:
         """Merge df1 to df2 on the join columns.
 
         To get df1 - df2, df2 - df1
@@ -293,10 +295,10 @@ class Compare(BaseCompare):
 
         for column in self.join_columns:
             self.df1[column] = normalize_string_column(
-                self.df1[column], ignore_spaces=ignore_spaces, ignore_case=False
+                self.df1[column], ignore_spaces=ignore_spaces, ignore_case=False, nulls_are_empty=nulls_are_empty
             )
             self.df2[column] = normalize_string_column(
-                self.df2[column], ignore_spaces=ignore_spaces, ignore_case=False
+                self.df2[column], ignore_spaces=ignore_spaces, ignore_case=False, nulls_are_empty=nulls_are_empty
             )
 
         outer_join = self.df1.merge(
@@ -339,7 +341,7 @@ class Compare(BaseCompare):
             f"Number of rows in df1 and df2 (not necessarily equal): {len(self.intersect_rows)}"
         )
 
-    def _intersect_compare(self, ignore_spaces: bool, ignore_case: bool) -> None:
+    def _intersect_compare(self, ignore_spaces: bool, ignore_case: bool, nulls_are_empty:bool = False) -> None:
         """Run the comparison on the intersect dataframe.
 
         This loops through all columns that are shared between df1 and df2, and
@@ -376,6 +378,7 @@ class Compare(BaseCompare):
                             self.abs_tol,
                             ignore_spaces,
                             ignore_case,
+                            nulls_are_empty,
                         ).to_frame(name=col_match),
                     ],
                     axis=1,
@@ -596,6 +599,7 @@ class Compare(BaseCompare):
                     self.abs_tol,
                     self.ignore_spaces,
                     self.ignore_case,
+                    self.nulls_are_empty
                 )
 
                 if not ignore_matching_cols or (
@@ -872,6 +876,7 @@ def columns_equal(
     abs_tol: float = 0,
     ignore_spaces: bool = False,
     ignore_case: bool = False,
+    nulls_are_empty:bool = False
 ) -> "pd.Series[bool]":
     """Compare two columns from a dataframe.
 
@@ -923,10 +928,10 @@ def columns_equal(
     compare: pd.Series[bool]
 
     col_1 = normalize_string_column(
-        col_1, ignore_spaces=ignore_spaces, ignore_case=ignore_case
+        col_1, ignore_spaces=ignore_spaces, ignore_case=ignore_case, nulls_are_empty=nulls_are_empty
     )
     col_2 = normalize_string_column(
-        col_2, ignore_spaces=ignore_spaces, ignore_case=ignore_case
+        col_2, ignore_spaces=ignore_spaces, ignore_case=ignore_case, nulls_are_empty=nulls_are_empty
     )
 
     # short circuit if comparing mixed type columns. Check list/arrrays or just return false for everything else.
@@ -1105,7 +1110,7 @@ def generate_id_within_group(
 
 
 def normalize_string_column(
-    column: pd.Series, ignore_spaces: bool, ignore_case: bool
+    column: pd.Series, ignore_spaces: bool, ignore_case: bool, nulls_are_empty: bool = False
 ) -> pd.Series:
     """Normalize a string column by converting to upper case and stripping whitespace.
 
@@ -1133,4 +1138,6 @@ def normalize_string_column(
     ):
         column = column.str.strip() if ignore_spaces else column
         column = column.str.upper() if ignore_case else column
+        if(nulls_are_empty):
+            column = column.apply(lambda x: "" if pd.isna(x) else x)
     return column

@@ -11,7 +11,7 @@ class ComparisonStatus:
 
 def try_compare(df1, df2, key):
     try:
-        compare = datacompy.Compare(df1,df2, join_columns=key, abs_tol=0, rel_tol=0, df1_name='Source', df2_name='Target', ignore_spaces=True)
+        compare = datacompy.Compare(df1,df2, join_columns=key, abs_tol=0, rel_tol=0, df1_name='Source', df2_name='Target', ignore_spaces=True, nulls_are_empty=True)
         compare.matches(ignore_extra_columns=False)
         reports, metrics = compare.report()
         status = ComparisonStatus(success=True, error=None)

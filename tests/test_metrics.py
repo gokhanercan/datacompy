@@ -28,7 +28,8 @@ class TestScores(unittest.TestCase):
             rel_tol=0,
             df1_name='Source',
             df2_name='Target',
-            ignore_spaces = True
+            ignore_spaces = True,
+            nulls_are_empty = True
         )
         compare.matches(ignore_extra_columns=False)
         reports, scores = compare.report()
@@ -54,6 +55,8 @@ class TestScores(unittest.TestCase):
         source = self.df.copy()
         source.at[0, 'name'] = ''
         target.at[0, 'name'] = ' '
+        source.at[1, 'name'] = ''
+        target.at[1, 'name'] = None
 
         m:Metrics = self._calculate_scores(source, target)
 
